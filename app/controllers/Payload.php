@@ -383,23 +383,20 @@ class Payload extends Controller
                     throw new Exception('Payload domain is in invalid format');
                 }
 
-                if (!$this->model('Payload')->isAvailable($payload)) {
-                    throw new Exception('Payload domain is already in use');
-                }
-
                 $userId = $this->session->data('id');
-                if (!$this->model('Payload')->isDomainAvailable($payload, $userId)) {
+                $whitelist = trim(_POST('whitelist') ?? '');
+
+                if (!$this->model('Payload')->isDomainAvailable($payload, $userId, $whitelist)) {
                     throw new Exception('Payload domain conflicts with existing payload');
                 }
 
                 // Create the payload
-                $this->model('Payload')->add($userId, $payload);
+                $newPayloadId = $this->model('Payload')->add($userId, $payload, $whitelist);
                 
                 $this->log("Created new payload {$payload}");
                 
                 // Redirect to edit the new payload
-                $newPayload = $this->model('Payload')->getByPayload($payload);
-                redirect('/manage/payload/edit/' . $newPayload['id']);
+                redirect('/manage/payload/edit/' . $newPayloadId);
                 
             } catch (Exception $e) {
                 $this->view->renderMessage($e->getMessage());

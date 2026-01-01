@@ -35,6 +35,13 @@
                                         <strong>Note:</strong> When no path is given, payload is valid for domain/*
                                     </small>
                                 </div>
+
+                                <div class="form-group">
+                                    <label class="control-label" for="whitelist">Allowed Domain (Optional)</label>
+                                    <small>If specified, this payload will only be served when the request originates from this domain. This allows you to reuse the same Payload URI for different targets.</small>
+                                    <input class="form-control" id="whitelist" name="whitelist" type="text" 
+                                           placeholder="target-site.com" autocomplete="off">
+                                </div>
                                 
                                 <button type="submit" class="btn">Create</button>
                             </form>

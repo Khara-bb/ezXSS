@@ -38,7 +38,17 @@ class Trigger extends Controller
         $this->view->setContentType('application/x-javascript');
 
         // Get the payload data for the current URL
-        $payload = $this->getPayloadByUrl(url);
+        $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+        if (empty($origin) && isset($_SERVER['HTTP_REFERER'])) {
+            $origin = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
+        }
+        $origin = str_replace(['https://', 'http://'], '', $origin);
+
+        $payload = $this->getPayloadByOrigin($origin, url);
+
+        if ($payload === null) {
+            $payload = $this->getPayloadByUrl(url);
+        }
 
         // Create the string of rows we dont collect
         $noCollect = [];
@@ -623,6 +633,65 @@ class Trigger extends Controller
         curl_setopt($ch, CURLOPT_HEADER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_exec($ch);
+    }
+
+    /**
+     * Get payload by origin
+     * 
+     * @param string $origin The origin
+     * @param string $currentUrl The current url
+     * @return array|null
+     */
+    private function getPayloadByOrigin($origin, $currentUrl)
+    {
+        if (empty($origin)) {
+            return null;
+        }
+
+        $payloads = $this->model('Payload')->getAll();
+        $candidates = [];
+
+        foreach ($payloads as $p) {
+            if (empty($p['whitelist'])) {
+                continue;
+            }
+
+            $domains = explode('~', $p['whitelist']);
+            foreach ($domains as $domain) {
+                if ($domain === $origin) {
+                    $candidates[] = $p;
+                    break;
+                }
+                if (strpos($domain, '*') !== false) {
+                    $pattern = str_replace('*', '(.*)', $domain);
+                    if (preg_match('/^' . $pattern . '$/', $origin)) {
+                        $candidates[] = $p;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (empty($candidates)) {
+            return null;
+        }
+
+        if (count($candidates) === 1) {
+            return $candidates[0];
+        }
+
+        // Conflict resolution: Check URL
+        $splitUrl = explode('/', $currentUrl ?? '');
+        $urlPath = (array_key_exists(2, $splitUrl) ? $splitUrl[2] : '') . '/' . (array_key_exists(3, $splitUrl) ? $splitUrl[3] : '');
+        $urlSimple = (array_key_exists(2, $splitUrl) ? $splitUrl[2] : '');
+
+        foreach ($candidates as $p) {
+            if ($p['payload'] === $urlPath || $p['payload'] === $urlSimple) {
+                return $p;
+            }
+        }
+
+        return $candidates[0];
     }
 
     /**
