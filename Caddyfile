@@ -1,0 +1,3 @@
+http://xss.khara.one, https://xss.khara.one, http://x.khara.one, https://x.khara.one {
+    reverse_proxy ezxss:80
+}

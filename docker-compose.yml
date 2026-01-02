@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
   ezxssdb:
     image: mysql:latest
@@ -17,15 +15,29 @@ services:
       dockerfile: ./Dockerfile
       args:
         - USE_MAIL_ALERTS=${useMailAlerts}
-    ports:
-      - "${dockerHttpPort:-80}:80"
-      - "${dockerHttpsPort:-443}:443"
     volumes:
       - .:/var/www/html
     restart: always
     depends_on:
       - ezxssdb
-    environment:
-      - INSTALL_CERTIFICATE=${autoInstallCertificate}
-      - DOMAIN=${domain}
-      - HTTPMODE=${httpmode}
+    env_file:
+      - .env
+
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - ezxss
+
+volumes:
+  ezxss_db:
+  caddy_data:
+  caddy_config:
