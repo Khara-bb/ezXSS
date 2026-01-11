@@ -29,10 +29,6 @@
                     "value": "{{user-agent}}"
                 },
                 {
-                    "name": "Cookies",
-                    "value": "{{cookies}}"
-                },
-                {
                     "name": "Origin",
                     "value": "{{origin}}"
                 }
