@@ -1,3 +1,3 @@
-http://xss.khara.one, https://xss.khara.one, http://x.khara.one, https://x.khara.one {
+http://{$LEGACY_DOMAIN}, https://{$LEGACY_DOMAIN}, http://{$DOMAIN}, https://{$DOMAIN} {
     reverse_proxy ezxss:80
 }

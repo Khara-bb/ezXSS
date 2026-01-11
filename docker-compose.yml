@@ -27,6 +27,11 @@ services:
     image: caddy:2
     container_name: caddy
     restart: unless-stopped
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+      - LEGACY_DOMAIN=${LEGACY_DOMAIN:-localhost}
+      - OOB_DOMAIN=${OOB_DOMAIN:-localhost}
+      - NAMECHEAP_API_TOKEN=${NAMECHEAP_API_TOKEN:-123}
     ports:
       - "80:80"
       - "443:443"
