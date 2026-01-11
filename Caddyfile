@@ -1,3 +1,9 @@
 http://{$LEGACY_DOMAIN}, https://{$LEGACY_DOMAIN}, http://{$DOMAIN}, https://{$DOMAIN} {
     reverse_proxy ezxss:80
 }
+{
+    log {
+            output file /var/log/caddy/access.log
+            format json
+    }
+}
